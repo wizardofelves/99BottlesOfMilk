@@ -1,119 +1,46 @@
-class CountdownSong
-  attr_reader :verse_template, :max, :min
+class Bottles
+  def verse(number)
+    "#{displayed_bottles(number).capitalize} of milk on the wall, " \
+      "#{displayed_bottles(number)} of milk.\n" +
+      action(number) +
+      "#{displayed_bottles(drank_one(number))} of milk on the wall.\n"
+  end
 
-  def initialize(verse_template:, max: 999999, min: 0)
-    @verse_template = verse_template
-    @max, @min = max, min
+  def verses(start, finish)
+    start.downto(finish).to_a.map { |number| verse(number) }.join("\n")
   end
 
   def song
-    verses(max, min)
+    verses(99, 0)
   end
 
-  def verses(upper, lower)
-    upper.downto(lower).collect {|i| verse(i)}.join("\n")
+  private
+
+  def drank_one(number)
+    number_minus_one = number - 1
+    number_minus_one >= 0 ? number_minus_one : 99
   end
 
-  def verse(number)
-    verse_template.lyrics(number)
-  end
-end
-
-
-class BottleVerse
-  def self.lyrics(number)
-    new(BottleNumber.for(number)).lyrics
-  end
-
-  attr_reader :bottle_number
-
-  def initialize(bottle_number)
-    @bottle_number = bottle_number
-  end
-
-  def lyrics
-    "#{bottle_number} of milk on the wall, ".capitalize +
-    "#{bottle_number} of milk.\n" +
-    "#{bottle_number.action}, " +
-    "#{bottle_number.successor} of milk on the wall.\n"
-  end
-end
-
-
-class BottleNumber
-  def self.for(number)
+  def action(number)
     case number
     when 0
-      BottleNumber0
+      'Go to the store and buy some more, '
     when 1
-      BottleNumber1
-    when 6
-      BottleNumber6
+      'Take it down and pass it around, '
     else
-      BottleNumber
-    end.new(number)
+      'Take one down and pass it around, '
+    end
   end
 
-  attr_reader :number
-  def initialize(number)
-    @number = number
+  def displayed_bottles(number)
+    "#{displayed_number(number)} #{noun_of_bottle(number)}"
   end
 
-  def to_s
-    "#{quantity} #{container}"
+  def displayed_number(number)
+    number != 0 ? number : 'no more'
   end
 
-  def quantity
-    number.to_s
-  end
-
-  def container
-    "bottles"
-  end
-
-  def action
-    "Take #{pronoun} down and pass it around"
-  end
-
-  def pronoun
-    "one"
-  end
-
-  def successor
-    BottleNumber.for(number - 1)
-  end
-end
-
-class BottleNumber0 < BottleNumber
-  def quantity
-    "no more"
-  end
-
-  def action
-    "Go to the store and buy some more"
-  end
-
-  def successor
-    BottleNumber.for(99)
-  end
-end
-
-class BottleNumber1 < BottleNumber
-  def container
-    "bottle"
-  end
-
-  def pronoun
-    "it"
-  end
-end
-
-class BottleNumber6 < BottleNumber
-  def quantity
-    "1"
-  end
-
-  def container
-    "six-pack"
+  def noun_of_bottle(number)
+    number == 1 ? 'bottle' : 'bottles'
   end
 end
